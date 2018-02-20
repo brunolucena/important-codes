@@ -296,6 +296,7 @@ alias gsl='git stash list'
 alias gsa='git stash apply'
 alias gsp='git stash pop'
 alias gsc='git stash clear'
+alias gsm='git stash push -m'
 
 # Apply specific stash
 function gsas(){
