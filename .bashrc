@@ -92,13 +92,37 @@ function gstl(){
 	git log | grep git-subtree-dir | tr -d ' ' | cut -d ":" -f2 | sort | uniq | xargs -I {} bash -c 'if [ -d $(git rev-parse --show-toplevel)/{} ] ; then echo {}; fi'
 }
 
-# Atualizar uma subtree
+# Atualizar uma subtree com o ultimo commit de uma branch (deve ser a branch de onde executa-se o comando)
 # arg1 = remote
 # arg2 = remote_branch
 function gust() {
 	local_branch=$(git rev-parse --abbrev-ref HEAD)
 	git checkout $1/version1
 	git cherry-pick -x $local_branch
+	printf '\n\n'
+	read -p 'Confirmar push? [y/n] ' response
+	case $response in
+		[yY])
+			git push $1 HEAD:refs/heads/$2
+			git checkout $local_branch
+			;;
+		[nN])
+			git cherry-pick --abort
+			git checkout $local_branch
+			;;
+		*)
+			printf %s\\n 'Confirme com y ou n'
+	esac
+}
+
+# Atualizar uma subtree com um commit passando a hash
+# arg1 = remote
+# arg2 = remote_branch
+# arg3 = commit_hash
+function gustc() {
+	local_branch=$(git rev-parse --abbrev-ref HEAD)
+	git checkout $1/version1
+	git cherry-pick -x $3
 	printf '\n\n'
 	read -p 'Confirmar push? [y/n] ' response
 	case $response in
@@ -157,7 +181,7 @@ alias gb='git branch -a'
 # Delete local branch
 alias gbdl='git branch -d'
 
-# Delete local branch
+# Delete local branch ignoring if it is merged
 alias gbdlh='git branch -D'
 
 # Delete remote branch
@@ -417,10 +441,10 @@ function sprint_author(){
 function json(){
 	CURRENT=$(date +'%d-%m-%Y')
 	git log  --date=local \
-	    --pretty=format:'{%n  "commit": "%H",%n  "author": "%an <%ae>",%n  "date": "%ad",%n  "message": "%s"%n},' \
-	    $@ | \
-	    perl -pe 'BEGIN{print "["}; END{print "]\n"}' | \
-	    perl -pe 's/},]/}]/' > "log-${CURRENT}.json"
+		--pretty=format:'{%n  "commit": "%H",%n  "author": "%an <%ae>",%n  "date": "%ad",%n  "message": "%s"%n},' \
+		$@ | \
+		perl -pe 'BEGIN{print "["}; END{print "]\n"}' | \
+		perl -pe 's/},]/}]/' > "log-${CURRENT}.json"
 }
 
 
@@ -453,10 +477,10 @@ function add-host(){
 }
 # list bookmarks with dirnam
 function list-host {
-    cat $HOSTSFILE | findstr -R -c:"\.local" | sed 's/[[:space:]]\{1,\}/ ---> /g' | sort
+	cat $HOSTSFILE | findstr -R -c:"\.local" | sed 's/[[:space:]]\{1,\}/ ---> /g' | sort
 
-    # if color output is not working for you, comment out the line below '\033[1;32m' == "red"
-    # env | sort | awk '/^$IP\t.+/{split(substr($0,14),parts,"\t"); printf("\033[0;33m%-20s\033[0m %s\n", parts[1], parts[2]);}'
+	# if color output is not working for you, comment out the line below '\033[1;32m' == "red"
+	# env | sort | awk '/^$IP\t.+/{split(substr($0,14),parts,"\t"); printf("\033[0;33m%-20s\033[0m %s\n", parts[1], parts[2]);}'
 }
 
 # Delete virtual host in Windows Hosts
