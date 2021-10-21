@@ -7,13 +7,6 @@
 	#USER VARS
 #\*------------------------------------*/
 
-URL='https://BrunoLucena@bitbucket.org/git-wide/'
-PROJECTSPATH='C:\inetpub\wwwroot\'
-HOSTSFILE='C:\Windows\System32\drivers\etc\hosts'
-IP='127.0.0.1';  #or use '$(ip)'
-DEPLOYFOLDER='.git-deploy'
-
-
 #/*------------------------------------*\
 	#GIT SETTINGS
 #\*------------------------------------*/
